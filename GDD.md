@@ -1,7 +1,7 @@
 # **Cosmonavt** _Game Design Document_
 
 ### **Cosmonavt © MAAN STUDIOS Todos los derechos reservados.**
-**By Angel Montemayor Davila A01785840, Mariano Carretero Fuentes A01029708**
+**By Angel Montemayor Davila, Katia Albigail Alvarez Contreras, Emiliano Delgadillo Osorio**
 
 ## _Index_
 
@@ -58,22 +58,6 @@ Con cada exploración, el protagonista reconstruye los eventos que llevaron a la
 
 ## **Technical**
 
-### **Controls**
-
-* Movimiento: WASD / Flechas
-
-* Ataque: Click izquierdo (arma equipada)
-
-* Sprint: Shift
-
-* Curarse (botiquín): Q
-
-* Interactuar: E
-
-* Cambiar armas: R
-
-* Chat: C
-
 ### **Screens**
 
 * **Start Menu**
@@ -119,6 +103,172 @@ Con cada exploración, el protagonista reconstruye los eventos que llevaron a la
 * Cooldowns
 
 * Fragmentos de historia recolectados
+
+### **Controls**
+
+* Movimiento: WASD / Flechas
+
+* Ataque: Click izquierdo (arma equipada)
+
+* Sprint: Shift
+
+* Curarse (botiquín): Q
+
+* Interactuar: E
+
+* Cambiar armas: R
+
+* Chat: C
+
+### Mechanics
+
+### **Sistema de Combate**
+
+Cada jugador (humano o Flood) puede portar un máximo de **2 armas activas al mismo tiempo**. El jugador puede alternar entre ellas con la tecla `R` y atacar con `click izquierdo`. Esta limitación obliga a tomar decisiones estratégicas según la situación de combate. Una de las armas puede ser una **granada**, y no se acumulan. Las granadas tienen un **cooldown de 2 segundos**, se lanzan con el mismo botón de ataque y por ahora son **infinitas** (se ampliará en versiones futuras).
+
+**Cambio de arma:**
+
+* Cambiar entre armas toma **1 segundo**.
+* No hay animación compleja (para futuras versiones).
+* El HUD muestra claramente las dos armas activas y cuál está equipada.
+
+**Interacción entre jugadores:**
+
+* No hay daño entre jugadores.
+* No hay colisión entre jugadores ni cadáveres; solo se colisiona con enemigos activos.
+* Al pasar sobre un cadáver, se reproduce una pequeña animación de pisado sin impacto físico.
+
+**Tipos de ataque humano:**
+
+* Pistola: 15 de daño, alcance medio, cooldown de 1s
+* SMG: 7 de daño por bala, ráfagas automáticas, cooldown de 0.5s entre ráfagas
+* Granada: 40 de daño en área, cooldown de 2s
+* Lanzallamas: 10 DPS, quemaduras persistentes por 3s
+
+**Tipos de ataque Flood:**
+
+* Golpe: 10 de daño cuerpo a cuerpo
+* Vómito ácido: 5 de daño + visión distorsionada por 2s
+* Humo tóxico: ralentiza al humano un 30%, duración 5s
+* Lanza espinas: 20 de daño a distancia, cooldown de 4s
+
+**Efectos de ataque:**
+
+* Las granadas empujan a enemigos ligeros
+* El humo reduce movilidad
+* El fuego o ácido deja efectos de estado persistente
+
+### **Exploración y Supervivencia**
+
+**Mapas generados por semilla:**
+El mundo se genera mediante una semilla controlada por el servidor. El cliente renderiza entornos como estaciones abandonadas, naves y planetas utilizando tilemaps sobre canvas. Cada sala puede contener condiciones especiales: radiación, vacío, oscuridad, etc.
+
+**Interacciones con el entorno:**
+
+* **Puertas**: se abren/cierra con `E`. Las puertas selladas requieren hackeo en futuras versiones.
+* **Paneles eléctricos**: activan luz con `E`, consumen energía y afectan la visibilidad del mapa.
+* **Cuerpos**: saqueables con `E`. El loot depende del tipo de cadáver:
+
+    * Humano militar: armas, munición, botiquines, fragmentos
+    * Humano civil: comida, agua, linternas, logs
+    * Flood básico: biomasa, restos orgánicos
+    * Flood evolucionado: biomasa rara, fragmentos especiales
+* **Objetos destruibles**: resaltados con grietas, color vivo o parpadeo. Los no destruibles no reaccionan.
+
+**Gestión de recursos**
+
+**Humanos:**
+
+* **Oxígeno**: se reduce al moverse/correr. A 0: visión en túnel + –5 HP/s
+* **Comida/agua**: recuperan +10 y +5 HP respectivamente. Beber da +10% de regeneración por 20s. No consumir reduce energía base en 10% por minuto (máx. 50%) y aplica penalizaciones:
+
+    * Visión en túnel
+    * Movimiento –25%
+    * Precisión –20%
+
+**Flood:**
+
+* **Biomasa**: se usa para curarse (+15 HP por unidad), clonar o evolucionar. Valor por tipo:
+
+    * Civil: 1 biomasa
+    * Militar: 2 biomasa
+    * Flood básico: 0.5 biomasa
+    * Flood evolucionado: 1.5 biomasa
+
+**Ambos:**
+
+* **Energía**: usada para habilidades y paneles. Se regenera 1 cada 10s o con ítems especiales.
+
+### **Progresión y Fragmentos de Historia**
+
+**Fragmentos de historia:**
+
+* Ítems persistentes con relevancia narrativa
+* 3 tipos: comunes, cifrados y clave
+* Aparecen en cuerpos, consolas o zonas ocultas
+* Algunos requieren eventos especiales para aparecer (boss, puzzles, generadores)
+* Se almacenan en el **Diario Universal** (`TAB`):
+
+    * Leíbles, reproducibles, categorizados
+    * No se duplican pero mejoran puntuación de la partida
+    * Desbloquean cinemáticas, zonas, habilidades pasivas o finales
+* Máximo 5 por partida. No son obligatorios para ganar
+
+### **Clonación y Habilidades Especiales**
+
+**Humanos:**
+
+* **Sprint** (`Shift`): dura 4s, cooldown 8s
+* **Curarse** (`Q` con botiquín): +40 HP tras canalizar 2s
+
+**Flood:**
+
+* **Clonación** (`Q`): requiere estar quieto, consume 1 biomasa, tarda 5s y genera clon con 50% HP. Si se interrumpe, se reinicia.
+* **Evolución**: se activa al consumir 3 cadáveres humanos; sube de nivel y otorga mejoras permanentes
+
+### **Sigilo y Detección**
+
+**Humanos:**
+
+* Detección enemiga:
+
+    * Luz total: 8 tiles
+    * Luz media: 5 tiles
+    * Oscuridad: 3 tiles
+* Sonido que alerta: correr, disparar, explosiones (no aplica a hackeo o clonación)
+
+**Flood:**
+
+* Ven mejor en la oscuridad (6 tiles sin importar luz)
+* En zonas iluminadas:
+
+    * Precisión –25%
+    * Detección reducida a 3 tiles
+
+### **Visión del Jugador**
+
+**Humanos:**
+
+* Campo visual limitado a 145° usando raycasting.
+* Solo se renderizan enemigos y objetos dentro del cono.
+* Si el jugador activa generadores, la visión puede ampliarse temporalmente hasta 365°.
+
+**Flood:**
+
+* Visión periférica adaptada a la oscuridad, con campo visual extendido de forma natural en zonas sin luz (hasta 365°).
+* En zonas muy iluminadas, el campo de visión se reduce hasta 90° y los bordes se tornan borrosos.
+* El cono de visión Flood ignora elementos ambientales menores, pero se ve afectado por estructuras grandes y obstáculos sólidos.
+
+### **Estadísticas y Leaderboard**
+
+Al final de la partida, se presenta un resumen y ranking:
+
+* Fragmentos encontrados
+* Tiempo de supervivencia
+* Enemigos eliminados (por tipo)
+* Distancia recorrida
+* Tamaño del ejército Flood
+* Total de muertes del jugador
 
 ## **Level Design**
 
